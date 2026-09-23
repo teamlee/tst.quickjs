@@ -1,4 +1,5 @@
 %global upstream_date 2026-06-04
+%global commit 04be246001599f5995fa2f2d8c91a0f198d3f34c
 # Fedora runs %%set_build_flags at the start of %%build, %%check, and
 # %%install. Leave the compiler flags to the QuickJS Makefile.
 %undefine _auto_set_build_flags
@@ -8,15 +9,15 @@
 
 Name:           quickjs
 Version:        2026.06.04
-Release:        9%{?dist}
+Release:        10%{?dist}
 Summary:        Small and embeddable JavaScript engine
 
 License:        MIT
 URL:            https://github.com/bellard/quickjs
-Source0:        quickjs.tgz
-# qjsc looks up libquickjs.a under $PREFIX/lib. The patch is beside
-# this spec, not inside the quickjs checkout.
-Source1:        quickjs-fc-libdir.patch
+Source0:        https://codeload.github.com/bellard/quickjs/tar.gz/%{commit}
+# qjsc looks up libquickjs.a under $PREFIX/lib. The raw URL is the
+# patch itself; a GitHub blob URL is an HTML page.
+Source1:        https://raw.githubusercontent.com/teamlee/tst.quickjs/c78abb14edac6792e85fab43f7189a7c540e3bc6/quickjs-fc-libdir.patch
 
 BuildRequires:  gcc
 BuildRequires:  git
@@ -56,8 +57,8 @@ Texinfo source for the QuickJS manual. The built HTML, PDF, and man
 page are in the main package under %{_docdir}/quickjs.
 
 %prep
-# quickjs.tgz unpacks to quickjs/.
-%setup -q -n quickjs
+# The codeload archive unpacks to quickjs-<full commit>.
+%setup -q -n %{name}-%{commit}
 # Apply once. A later build finds @LIBDIR@ already substituted.
 if grep -F -q '/lib/quickjs' qjsc.c; then
   git apply -- %{SOURCE1}
@@ -129,6 +130,9 @@ rm -f debugfiles.list debuglinks.list debugsourcefiles.list debugsources.list el
 %doc doc/quickjs.texi
 
 %changelog
+* Wed Sep 23 2026 Packager - 2026.06.04-10
+- Take Source0 from the GitHub codeload snapshot of %%{commit}
+
 * Wed Sep 23 2026 Packager - 2026.06.04-9
 - Unpack Source0 with %%setup instead of treating it as a git checkout
 

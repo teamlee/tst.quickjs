@@ -1,4 +1,5 @@
 
 srpm:
-	dnf --silent --yes install gcc
+	dnf --quiet --yes install tree gcc
+	echo srpm done
 

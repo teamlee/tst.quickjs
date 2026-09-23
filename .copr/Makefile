@@ -7,5 +7,6 @@ SOURCES_quickjs:
 
 srpm: packages SOURCES_quickjs
 	rpmbuild -bs quickjs.spec
+	mv ~/build/SRPMS/*.src.rpm $(outdir)
 	echo SRPM done
 

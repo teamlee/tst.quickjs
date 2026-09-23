@@ -1,6 +1,6 @@
 
 packages:
-	dnf --quiet -y install git tree gcc
+	dnf --quiet -y install git tree gcc rpmdev-setuptree
 	rpmdev-setuptree
 
 SOURCES_quickjs:

@@ -1,6 +1,6 @@
 
 packages:
-	dnf --quiet -y install tree gcc
+	dnf --quiet -y install git tree gcc
 
 SOURCES_quickjs:
 	git -C quickjs archive --format=tgz --prefix=quickjs/ HEAD -o ../quickjs.tgz

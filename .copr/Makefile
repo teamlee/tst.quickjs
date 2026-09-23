@@ -6,5 +6,6 @@ SOURCES_quickjs:
 	echo done
 
 srpm: packages SOURCES_quickjs
+	rpmbuild -bs quickjs.spec
 	echo SRPM done
 

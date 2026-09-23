@@ -1,7 +1,4 @@
 %global upstream_date 2026-06-04
-# Source0 is the quickjs git checkout next to this spec. rpm resolves
-# Source0 under %%{_sourcedir}, so that directory is the spec's directory.
-%global _sourcedir %{expand:%(dirname %{__file_name})}
 # Fedora runs %%set_build_flags at the start of %%build, %%check, and
 # %%install. Leave the compiler flags to the QuickJS Makefile.
 %undefine _auto_set_build_flags
@@ -11,15 +8,15 @@
 
 Name:           quickjs
 Version:        2026.06.04
-Release:        6%{?dist}
+Release:        9%{?dist}
 Summary:        Small and embeddable JavaScript engine
 
 License:        MIT
-URL:            https://bellard.org/quickjs/
-Source0:        quickjs
-# qjsc looks up libquickjs.a under $PREFIX/lib. The patch lives in the
-# git checkout and is applied there with git apply. Install the archive
-# in %%{_libdir} and teach qjsc that path.
+URL:            https://github.com/bellard/quickjs
+Source0:        quickjs.tgz
+# qjsc looks up libquickjs.a under $PREFIX/lib. The patch is beside
+# this spec, not inside the quickjs checkout.
+Source1:        quickjs-fc-libdir.patch
 
 BuildRequires:  gcc
 BuildRequires:  git
@@ -30,10 +27,6 @@ BuildRequires:  texinfo
 BuildRequires:  texinfo-tex
 # Man page from the generated HTML. Pandoc does not read Texinfo.
 BuildRequires:  pandoc
-
-# %%build, %%install, and %%check cd here. It is a symlink to Source0,
-# so make writes qjs, qjsc, libquickjs.a, and the manual into the checkout.
-%global buildsubdir %{name}-%{version}
 
 %description
 QuickJS is a small and embeddable JavaScript engine. It supports most of
@@ -63,13 +56,11 @@ Texinfo source for the QuickJS manual. The built HTML, PDF, and man
 page are in the main package under %{_docdir}/quickjs.
 
 %prep
-test -d %{SOURCE0}/.git
-git -C %{SOURCE0} rev-parse --is-inside-work-tree
-ln -sfn %{SOURCE0} %{buildsubdir}
-cd %{buildsubdir}
-# Apply once. A later build finds the libdir already substituted.
+# quickjs.tgz unpacks to quickjs/.
+%setup -q -n quickjs
+# Apply once. A later build finds @LIBDIR@ already substituted.
 if grep -F -q '/lib/quickjs' qjsc.c; then
-  git apply -- quickjs-libdir.patch
+  git apply -- %{SOURCE1}
 fi
 if grep -F -q '@LIBDIR@' qjsc.c; then
   sed -i 's|@LIBDIR@|%{_libdir}/quickjs|' qjsc.c
@@ -138,6 +129,15 @@ rm -f debugfiles.list debuglinks.list debugsourcefiles.list debugsources.list el
 %doc doc/quickjs.texi
 
 %changelog
+* Wed Sep 23 2026 Packager - 2026.06.04-9
+- Unpack Source0 with %%setup instead of treating it as a git checkout
+
+* Wed Sep 23 2026 Packager - 2026.06.04-8
+- Build from the local quickjs git checkout named by Source0
+
+* Wed Sep 23 2026 Packager - 2026.06.04-7
+- Take Source0 from the GitHub codeload snapshot of %%{commit}
+
 * Tue Sep 22 2026 Packager - 2026.06.04-6
 - Generate a man page with pandoc and install it in %%{_docdir}/quickjs
 

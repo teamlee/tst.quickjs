@@ -1,0 +1,71 @@
+# Object files
+*.o
+*.obj
+*.lo
+
+# Libraries
+*.a
+*.la
+*.so
+*.so.*
+*.dylib
+*.dll
+
+# Executables and link products
+*.exe
+*.out
+*.elf
+*.ilk
+*.map
+*.exp
+a.out
+
+# Dependency and precompiled-header output
+*.d
+*.gch
+*.pch
+
+# Debug symbols
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Core dumps
+core
+core.*
+vgcore.*
+
+# Archives
+*.tar
+*.tar.gz
+*.tgz
+*.tar.bz2
+*.tbz
+*.tbz2
+*.tar.xz
+*.txz
+*.tar.zst
+*.zip
+*.gz
+*.bz2
+*.xz
+*.7z
+*.rar
+
+# Images
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.bmp
+*.ico
+*.svg
+*.tif
+*.tiff
+
+# Documents
+*.pdf
+*.html
+*.htm

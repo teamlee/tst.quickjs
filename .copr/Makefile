@@ -1,6 +1,6 @@
 
 packages:
-	sudo dnf --quiet -y install git tree gcc
+	dnf --quiet -y install git tree gcc
 
 create_source_rpm:
 	rpmbuild -bs *.spec

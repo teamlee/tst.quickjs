@@ -9,7 +9,7 @@
 
 Name:           quickjs
 Version:        2026.06.04
-Release:        10%{?dist}
+Release:        11%{?dist}
 Summary:        Small and embeddable JavaScript engine
 
 License:        MIT

@@ -3,7 +3,7 @@ packages:
 	dnf --quiet -y install git tree gcc
 
 create_source_rpm:
-	rpmbuild -bs $(spec_path)
+	rpmbuild -bs $(spec)
 
 all_source_rpm_to_workdir:
 	tree ~/build

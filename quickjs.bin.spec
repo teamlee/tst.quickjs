@@ -10,7 +10,7 @@
 
 Name:           quickjs.bin
 Version:        2026.06.04
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        QuickJS command-line interpreter and compiler
 
 License:        MIT
@@ -27,7 +27,8 @@ BuildRequires:  make
 
 %description
 QuickJS is a small and embeddable JavaScript engine. This package
-contains the qjs interpreter, the qjsc compiler, and libquickjs.a.
+contains the qjs interpreter, the qjsc compiler, libquickjs.a, and
+libquickjs.so.
 
 %prep
 # The codeload archive unpacks to quickjs-<full commit>, not %{name}.
@@ -46,14 +47,22 @@ fi
 CFLAGS="${CFLAGS} -fPIC"
 export CFLAGS
 rm -rf .obj
-rm -f qjs qjsc libquickjs.a
+rm -f qjs qjsc libquickjs.a libquickjs.so
 # qjsc links generated programs against libquickjs.a.
-%make_build PREFIX=%{_prefix} qjs qjsc libquickjs.a
+# The Makefile has no shared-library target. Link the PIC objects.
+%make_build PREFIX=%{_prefix} qjs qjsc libquickjs.a \
+    .obj/quickjs.pic.o .obj/dtoa.pic.o .obj/libregexp.pic.o \
+    .obj/libunicode.pic.o .obj/cutils.pic.o .obj/quickjs-libc.pic.o
+gcc -shared -Wl,-soname,libquickjs.so -o libquickjs.so \
+    .obj/quickjs.pic.o .obj/dtoa.pic.o .obj/libregexp.pic.o \
+    .obj/libunicode.pic.o .obj/cutils.pic.o .obj/quickjs-libc.pic.o \
+    -lm -lpthread -ldl
 
 %install
 install -D -p -m 0755 qjs %{buildroot}%{_bindir}/qjs
 install -D -p -m 0755 qjsc %{buildroot}%{_bindir}/qjsc
 install -D -p -m 0644 libquickjs.a %{buildroot}%{_libdir}/quickjs/libquickjs.a
+install -D -p -m 0755 libquickjs.so %{buildroot}%{_libdir}/libquickjs.so
 
 %check
 %make_build test
@@ -66,7 +75,11 @@ grep -F -q '"%{_libdir}/quickjs"' qjsc.c
 %{_bindir}/qjs
 %{_bindir}/qjsc
 %{_libdir}/quickjs/libquickjs.a
+%{_libdir}/libquickjs.so
 
 %changelog
+* Thu Sep 24 2026 Packager - 2026.06.04-2
+- Also package libquickjs.so
+
 * Thu Sep 24 2026 Packager - 2026.06.04-1
 - Package qjs, qjsc, and libquickjs.a

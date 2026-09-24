@@ -10,7 +10,7 @@
 
 Name:           quickjs.devel
 Version:        2026.06.04
-Release:        1%{?dist}
+Release:        3%{?dist}
 Summary:        QuickJS headers and libraries
 
 License:        MIT
@@ -19,59 +19,40 @@ Source0:        https://codeload.github.com/bellard/quickjs/tar.gz/%{commit}
 
 BuildRequires:  gcc
 BuildRequires:  glibc-devel
-BuildRequires:  make
+
+# libquickjs.a is owned by quickjs.bin. qjsc looks for it there.
+Requires:       quickjs.bin >= %{version}
 
 %description
 QuickJS is a small and embeddable JavaScript engine. This package
-contains the public headers, libquickjs.a, and libquickjs.so.
+contains the public headers. The libraries are provided by quickjs.bin.
 
 %prep
 # The codeload archive unpacks to quickjs-<full commit>, not %{name}.
 %setup -q -n quickjs-%{commit}
 
 %build
-# Upstream appends -D_GNU_SOURCE, -DCONFIG_VERSION, -fwrapv, and the
-# qjsc prefix defines with CFLAGS+=. Extra flags have to come from the
-# environment; a CFLAGS= argument on the make command line would drop them.
-CFLAGS="${CFLAGS} -fPIC"
-export CFLAGS
-rm -rf .obj
-rm -f libquickjs.a libquickjs.so
-%make_build PREFIX=%{_prefix} libquickjs.a \
-    .obj/quickjs.pic.o .obj/dtoa.pic.o .obj/libregexp.pic.o \
-    .obj/libunicode.pic.o .obj/cutils.pic.o .obj/quickjs-libc.pic.o
-# The Makefile has no shared-library target. Link the PIC objects.
-gcc -shared -Wl,-soname,libquickjs.so -o libquickjs.so \
-    .obj/quickjs.pic.o .obj/dtoa.pic.o .obj/libregexp.pic.o \
-    .obj/libunicode.pic.o .obj/cutils.pic.o .obj/quickjs-libc.pic.o \
-    -lm -lpthread -ldl
 
 %install
 install -D -p -m 0644 quickjs.h %{buildroot}%{_includedir}/quickjs/quickjs.h
 install -D -p -m 0644 quickjs-libc.h %{buildroot}%{_includedir}/quickjs/quickjs-libc.h
-install -D -p -m 0644 libquickjs.a %{buildroot}%{_libdir}/quickjs/libquickjs.a
-install -D -p -m 0755 libquickjs.so %{buildroot}%{_libdir}/libquickjs.so
 
 %check
-cat > linkcheck.c << 'EOF'
+gcc -c -I. -o /dev/null -x c - << 'EOF'
 #include "quickjs.h"
-int main(void) {
-    JSRuntime *rt = JS_NewRuntime();
-    JS_FreeRuntime(rt);
-    return 0;
-}
+#include "quickjs-libc.h"
 EOF
-gcc -I. linkcheck.c libquickjs.a -lm -lpthread -ldl -o linkcheck-static
-./linkcheck-static
-gcc -I. linkcheck.c -L. -lquickjs -Wl,-rpath,. -lm -lpthread -ldl -o linkcheck-shared
-./linkcheck-shared
 
 %files
 %{_includedir}/quickjs/quickjs.h
 %{_includedir}/quickjs/quickjs-libc.h
-%{_libdir}/quickjs/libquickjs.a
-%{_libdir}/libquickjs.so
 
 %changelog
+* Thu Sep 24 2026 Packager - 2026.06.04-3
+- Leave both libraries to quickjs.bin
+
+* Thu Sep 24 2026 Packager - 2026.06.04-2
+- Drop libquickjs.a and require quickjs.bin, which owns that file
+
 * Thu Sep 24 2026 Packager - 2026.06.04-1
 - Package the QuickJS headers, static library, and shared library

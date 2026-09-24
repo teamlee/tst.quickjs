@@ -8,7 +8,7 @@
 %global debug_package %{nil}
 %global _build_id_links none
 
-Name:           quickjs-devel
+Name:           quickjs.devel
 Version:        2026.06.04
 Release:        1%{?dist}
 Summary:        QuickJS headers and libraries

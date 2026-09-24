@@ -8,7 +8,7 @@
 %global debug_package %{nil}
 %global _build_id_links none
 
-Name:           quickjs-bin
+Name:           quickjs.bin
 Version:        2026.06.04
 Release:        1%{?dist}
 Summary:        QuickJS command-line interpreter and compiler
